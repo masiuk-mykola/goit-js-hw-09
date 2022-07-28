@@ -14,11 +14,13 @@ const startBtnClickHandler = e => {
   timerId = setInterval(() => {
     refs.body.style.backgroundColor = getRandomHexColor();
   }, 1000);
+  refs.start.setAttribute('disabled', 'disabled');
 };
 
 const stoptBtnClickHandler = e => {
   clearInterval(timerId);
   refs.body.style.backgroundColor = 'transparent';
+  refs.start.removeAttribute('disabled');
 };
 
 // ==========EventListeners======
