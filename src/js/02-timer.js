@@ -3,15 +3,26 @@ import flatpickr from 'flatpickr';
 // Додатковий імпорт стилів
 import 'flatpickr/dist/flatpickr.min.css';
 
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
+
 // refs
 const refs = {
   input: document.querySelector('input'),
-  start: document.querySelector('button'),
+  start: document.querySelector('button[data-start]'),
   days: document.querySelector('span[data-days]'),
   hours: document.querySelector('span[data-hours]'),
   minutes: document.querySelector('span[data-minutes]'),
   seconds: document.querySelector('span[data-seconds]'),
 };
+
+let timerId = null;
+
+Notify.init({
+  width: '300px',
+  position: 'center-top',
+  closeButton: true,
+  clickToClose: true,
+});
 
 // options for flatpickr
 const options = {
@@ -21,30 +32,26 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     const selectedDate = selectedDates[0];
-    const deltaTime1 = selectedDate - new Date();
-    alertOnPastTime(deltaTime1);
-    disableBtnStart(deltaTime1);
-    enableBtnStart(deltaTime1);
-    const timeLeft = convertMs(deltaTime1);
-
-    render(timeLeft, deltaTime1);
+    const deltaTimeForPlchdr = selectedDate - new Date();
+    alertOnPastTime(deltaTimeForPlchdr);
+    disableBtnStart(deltaTimeForPlchdr);
+    enableBtnStart(deltaTimeForPlchdr);
+    const timeLeftForPlchdr = convertMs(deltaTimeForPlchdr);
+    render(timeLeftForPlchdr, deltaTimeForPlchdr);
 
     // Обробник кліку по кнопці старт
     const startBtnClickHandler = () => {
-      const timerId = setInterval(callback, 1000);
+      timerId = setInterval(updateTimer, 1000);
     };
 
-    // =====EventListener==============
-    refs.start.addEventListener('click', startBtnClickHandler);
-
-    function callback() {
+    function updateTimer() {
       const timeNow = new Date();
       const deltaTime = selectedDate - timeNow;
       const timeLeft = convertMs(deltaTime);
-      console.log(deltaTime);
       render(timeLeft, deltaTime);
-      console.log('скрипт повинен виводити deltaTime раз на секунду');
     }
+    // ==========EventListener==============
+    refs.start.addEventListener('click', startBtnClickHandler);
   },
 };
 
@@ -67,7 +74,7 @@ const enableBtnStart = time => {
 // Створюю функцію, щоб обробляти подію коли користувач обере минулий час
 const alertOnPastTime = time => {
   if (time < 0) {
-    return alert('Please choose a date in the future');
+    return Notify.warning('Please choose a date in the future');
   }
 };
 
